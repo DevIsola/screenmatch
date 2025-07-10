@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DataConverterService implements IDataConversion {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public <T> T convertData(String json, Class<T> type) throws Exception {
+    public <T> T convertData(String json, Class<T> type) {
         try {
             return mapper.readValue(json, type);
         } catch (JsonProcessingException e) {
