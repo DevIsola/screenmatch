@@ -1,5 +1,6 @@
 package br.com.alura.screenmatch.principal;
 
+import br.com.alura.screenmatch.model.EpisodiesModel;
 import br.com.alura.screenmatch.model.SeasonModel;
 import br.com.alura.screenmatch.model.SeriesModel;
 import br.com.alura.screenmatch.service.ApiConsumerService;
@@ -23,21 +24,21 @@ public class Principal {
         DataConverterService dataConverterService = new DataConverterService();
 
         try {
-            String jsonData = apiConsumerService.getData(title);
+            String jsonData = apiConsumerService.getDataByTitle(title);
             SeriesModel series = dataConverterService.convertData(jsonData, SeriesModel.class);
             List<SeasonModel> seasons = new ArrayList<>();
             for (int season = 1; season <= series.totalSeasons(); season++) {
-                jsonData = apiConsumerService.getData("https://www.omdbapi.com/?t=virgin+river&Season=" + season + OMDB_KEY);
+                jsonData = apiConsumerService.getSeasonDataByTitle(title, season);
                 SeasonModel seasonData = dataConverterService.convertData(jsonData, SeasonModel.class);
                 seasons.add(seasonData);
-             }
+            }
 
-            System.out.println("Serie: " + series);
-            seasons.forEach(System.out::println);
+            seasons.forEach(season -> season.episodes()
+                    .forEach(episode -> System.out.println("> " + episode.title())));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
-
 }

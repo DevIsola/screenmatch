@@ -10,10 +10,18 @@ import static br.com.alura.screenmatch.configuration.Keys.*;
 
 public class ApiConsumerService {
 
-    public String getData(String title) {
-        title = title.toLowerCase().replace(" ", "+");
-        String query = DOMAIN_URL + title + OMDB_KEY;
+    public String getDataByTitle(String title) {
+        String query = DOMAIN_URL + OMDB_TITLE + titleFormater(title) + OMDB_KEY;
         return apiCall(query);
+    }
+
+    public String getSeasonDataByTitle(String title, int season) {
+        String query = DOMAIN_URL + OMDB_TITLE + titleFormater(title) + OMDB_SEASON + season + OMDB_KEY;
+        return apiCall(query);
+    }
+
+    private String titleFormater(String title) {
+        return title.toLowerCase().replace(" ", "+");
     }
 
     private String apiCall(String query) {
