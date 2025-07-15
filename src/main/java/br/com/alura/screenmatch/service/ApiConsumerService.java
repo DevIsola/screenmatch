@@ -1,12 +1,14 @@
 package br.com.alura.screenmatch.service;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import static br.com.alura.screenmatch.configuration.Keys.*;
+import static br.com.alura.screenmatch.constant.AppConstants.*;
 
 public class ApiConsumerService {
 
@@ -20,7 +22,7 @@ public class ApiConsumerService {
         return apiCall(query);
     }
 
-    private String titleFormater(String title) {
+    private @NotNull String titleFormater(String title) {
         return title.toLowerCase().replace(" ", "+");
     }
 
