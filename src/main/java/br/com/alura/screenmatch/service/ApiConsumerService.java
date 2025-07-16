@@ -17,8 +17,8 @@ public class ApiConsumerService {
         return apiCall(query);
     }
 
-    public String getSeasonDataByTitle(String title, int season) {
-        String query = DOMAIN_URL + OMDB_TITLE + titleFormater(title) + OMDB_SEASON + season + OMDB_KEY;
+    public String getSeasonDataByTitle(String title, int seasonNumber) {
+        String query = DOMAIN_URL + OMDB_TITLE + titleFormater(title) + OMDB_SEASON + seasonNumber + OMDB_KEY;
         return apiCall(query);
     }
 

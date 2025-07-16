@@ -1,51 +1,93 @@
 package br.com.alura.screenmatch.principal;
 
-import br.com.alura.screenmatch.model.entity.EpisodesEntity;
 import br.com.alura.screenmatch.model.dto.SeasonsDto;
 import br.com.alura.screenmatch.model.dto.SeriesDto;
+import br.com.alura.screenmatch.model.entity.SeriesEntity;
 import br.com.alura.screenmatch.service.ApiConsumerService;
 import br.com.alura.screenmatch.service.DataConverterService;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 
 public class Principal {
 
     private final ApiConsumerService apiConsumerService = new ApiConsumerService();
     Scanner scanner = new Scanner(System.in);
+    DataConverterService dataConverterService = new DataConverterService();
+    private List<SeriesDto> seriesDtoList = new ArrayList<>();
 
     public void showMenu() {
-        System.out.println("> Welcome to ScreenMatch!");
-        System.out.println("> Type the title of the movie or series you want to search for: ");
-        String title = scanner.nextLine();
-        DataConverterService dataConverterService = new DataConverterService();
+        int selection = -1;
 
-        try {
-            String jsonData = apiConsumerService.getDataByTitle(title);
-            SeriesDto series = dataConverterService.convertData(jsonData, SeriesDto.class);
-            List<SeasonsDto> seasons = new ArrayList<>();
-            for (int season = 1; season <= series.totalSeasons(); season++) {
-                jsonData = apiConsumerService.getSeasonDataByTitle(title, season);
-                SeasonsDto seasonData = dataConverterService.convertData(jsonData, SeasonsDto.class);
-                seasons.add(seasonData);
+        System.out.println("Welcome to the ScreenMatch application!");
+
+        while (selection != 0) {
+            System.out.println("""
+                    > Select one of the options below:
+                    
+                    > 1 - Search for a series
+                    > 2 - Search for an episode
+                    > 3 - Show searched series
+                    
+                    > 0 - Exit
+                    """);
+            selection = Integer.parseInt(scanner.nextLine());
+
+            switch (selection) {
+                case 1 -> searchSeries();
+                case 2 -> searchEpisodes();
+                case 0 -> System.out.println("Exiting the application...");
+                default -> System.out.println("Invalid option, please try again.");
             }
-
-            seasons.forEach(season -> season.episodes()
-                    .forEach(episode -> System.out.println("> " + episode.title()
-                            + " | " + episode.releaseDate())));
-
-            List<EpisodesEntity> episodesEntity = seasons.stream()
-                    .flatMap(s -> s.episodes().stream()
-                            .map(e -> new EpisodesEntity(s.seasonNumber(), e)))
-                            .collect(Collectors.toList());
-
-            episodesEntity.forEach(System.out::println);
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
+    }
+
+    private void searchSeries() {
+        SeriesDto seriesDto = getSeriesData();
+        seriesDtoList.add(seriesDto);
+        System.out.println("> Series found!\n> " + seriesDto);
+    }
+
+    private void searchEpisodes() {
+        SeriesDto seriesDto = getSeriesData();
+        List<SeasonsDto> seasonsDto = new ArrayList<>();
+
+        for(int season = 1; season <= seriesDto.totalSeasons(); season++) {
+            String jsonData = apiConsumerService.getSeasonDataByTitle(seriesDto.title(), season);
+            SeasonsDto seasonsData = dataConverterService.convertData(jsonData, SeasonsDto.class);
+            seasonsDto.add(seasonsData);
+        }
+
+        seasonsDto.forEach(season -> season.episodes()
+                .forEach(episode -> System.out.println(
+                        "> S0" + season.seasonNumber()
+                        + "E0" + episode.number()
+                        + " | " + episode.title()
+                        + " | Release: " + episode.releaseDate())));
+
+    }
+
+    private SeriesDto getSeriesData() {
+        System.out.println("> Enter the title of the series:");
+        String title = scanner.nextLine();
+        String jsonData = apiConsumerService.getDataByTitle(title);
+        return dataConverterService.convertData(jsonData, SeriesDto.class);
+
+    }
+
+    private void showSearchedSeries() {
+        List<SeriesEntity> seriesEntities = new ArrayList<>();
+        seriesEntities = seriesDtoList.stream()
+                .map(serie -> new SeriesEntity(serie))
+                .collect(Collectors.toList());
+
+        seriesEntities.stream()
+                .sorted(Comparator.comparing(SeriesEntity::getGenre))
+                .forEach(System.out::println);
     }
 }
