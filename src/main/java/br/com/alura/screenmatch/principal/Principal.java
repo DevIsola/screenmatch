@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
-import java.text.SimpleDateFormat;
-import java.util.stream.Collectors;
 
 public class Principal {
 
@@ -27,6 +25,9 @@ public class Principal {
 
         while (selection != 0) {
             System.out.println("""
+                    
+                    *******************************************
+                    
                     > Select one of the options below:
                     
                     > 1 - Search for a series
@@ -40,6 +41,7 @@ public class Principal {
             switch (selection) {
                 case 1 -> searchSeries();
                 case 2 -> searchEpisodes();
+                case 3 -> showSearchedSeries();
                 case 0 -> System.out.println("Exiting the application...");
                 default -> System.out.println("Invalid option, please try again.");
             }
@@ -83,8 +85,8 @@ public class Principal {
     private void showSearchedSeries() {
         List<SeriesEntity> seriesEntities = new ArrayList<>();
         seriesEntities = seriesDtoList.stream()
-                .map(serie -> new SeriesEntity(serie))
-                .collect(Collectors.toList());
+                .map(SeriesEntity::new)
+                .toList();
 
         seriesEntities.stream()
                 .sorted(Comparator.comparing(SeriesEntity::getGenre))
